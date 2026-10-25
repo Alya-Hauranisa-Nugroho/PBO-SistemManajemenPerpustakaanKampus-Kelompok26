@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
 import java.util.ArrayList;
@@ -9,14 +5,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
-/**
- *
- * @author MSI THIN 15
- */
-
 public class Perpustakaan {
 
-    // 1. Array 1 Dimensi
     private final String[] kategori = {
         "Pemrograman",
         "Matematika",
@@ -24,7 +14,6 @@ public class Perpustakaan {
         "Basis Data"
     };
 
-    // 2. Array 2 Dimensi: kategori x hari
     private final String[] hari = {
         "Senin", "Selasa", "Rabu", "Kamis",
         "Jumat", "Sabtu", "Minggu"
@@ -32,16 +21,12 @@ public class Perpustakaan {
 
     private final int[][] statistik = new int[4][7];
 
-    // 3. Array 3 Dimensi: lantai x rak x posisi
     private final String[][][] lokasi = new String[2][3][4];
 
-    // 4. ArrayList
     private final ArrayList<Buku> daftarBuku = new ArrayList<>();
 
-    // 5. Stack
     private final Stack<Transaksi> riwayat = new Stack<>();
 
-    // 6. Queue
     private final Queue<String> antrean = new LinkedList<>();
 
     private int nomorBuku = 1;
@@ -225,21 +210,38 @@ public class Perpustakaan {
     }
 
     public void pinjamBuku(String nama, String id, int indeksHari) {
-        Buku bukuDipinjam = cariBuku(id); 
+      Buku bukuDipinjam = cariBuku(id);
 
-        if (bukuDipinjam != null) {
-            if (bukuDipinjam.isTersedia()) {
-                bukuDipinjam.setTersedia(false);
-                bukuDipinjam.setNamaPeminjam(nama); 
+      if (bukuDipinjam == null) {
+          System.out.println("Buku tidak ditemukan.");
+          return;
+      }
 
-                System.out.println("Buku berhasil dipinjam oleh " + nama);
-            } else {
-                System.out.println("Maaf, buku sedang dipinjam oleh " + bukuDipinjam.getNamaPeminjam());
-            }
-        } else {
-            System.out.println("Buku dengan ID tersebut tidak ditemukan!");
-        }
-    }
+      if (!bukuDipinjam.isTersedia()) {
+          System.out.println("Buku sedang dipinjam oleh: "
+                  + bukuDipinjam.getNamaPeminjam());
+          return;
+      }
+
+      if (indeksHari < 0 || indeksHari >= hari.length) {
+          System.out.println("Pilihan hari tidak valid.");
+          return;
+      }
+
+      bukuDipinjam.setTersedia(false);
+      bukuDipinjam.setNamaPeminjam(nama);
+
+      int indeksKategori = bukuDipinjam.getIndeksKategori();
+      statistik[indeksKategori][indeksHari]++;
+
+      riwayat.push(new Transaksi(
+              "PINJAM", nama, bukuDipinjam, indeksHari));
+
+      System.out.println("Peminjaman buku berhasil.");
+      System.out.println("Nama peminjam: " + nama);
+      System.out.println("Judul buku: " + bukuDipinjam.getJudul());
+      System.out.println("Hari peminjaman: " + hari[indeksHari]);
+  }
 
     public void kembalikanBuku(String nama, String id) {
         Buku bukuDikembalikan = cariBuku(id);
